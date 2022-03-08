@@ -16,6 +16,8 @@
         [SerializeField] private float jumpForce = 14f;
 
         private enum MovementState { idle, running, jumping, falling }
+
+        [SerializeField] private AudioSource jumpSoundEffect;
         // Start is called before the first frame update
         private void Start()
         {
@@ -60,6 +62,7 @@
 
         if (rb.velocity.y > .1f)
         {
+            jumpSoundEffect.Play();
             state = MovementState.jumping;
         }
         else if (rb.velocity.y < -.1f)
