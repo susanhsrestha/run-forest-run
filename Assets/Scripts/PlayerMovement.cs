@@ -10,6 +10,8 @@
         private SpriteRenderer spr;
         [SerializeField] private float moveSpeed = 7f;
         [SerializeField] private float jumpForce = 14f;
+
+        private enum MovementState { idle, running, jumping, falling }
         // Start is called before the first frame update
         private void Start()
         {
@@ -24,28 +26,43 @@
         {
             dirX = Input.GetAxisRaw("Horizontal");
             rb.velocity = new Vector2(dirX * moveSpeed, rb.velocity.y);
+            
             if (Input.GetButtonDown("Jump"))
             {
-                rb.velocity = new Vector3(0, jumpForce, 0);
+                rb.velocity = new Vector2(rb.velocity.x, jumpForce);
             }
             UpdateAnimationState();
         }
 
-        private void UpdateAnimationState() 
+        private void UpdateAnimationState()
+    {
+        MovementState state;
+
+        if (dirX > 0f)
         {
-            if(dirX > 0f)
-            {
-                anim.SetBool("running", true);
-                spr.flipX = false;
-            } 
-            else if (dirX < 0f)
-            {
-                anim.SetBool("running", true);
-                spr.flipX = true;
-            }
-            else 
-            {
-                anim.SetBool("running", false);
-            }
+            state = MovementState.running;
+            spr.flipX = false;
         }
+        else if (dirX < 0f)
+        {
+            state = MovementState.running;
+            spr.flipX = true;
+        }
+        else
+        {
+            state = MovementState.idle;
+        }
+
+        if (rb.velocity.y > .1f)
+        {
+            state = MovementState.jumping;
+        }
+        else if (rb.velocity.y < -.1f)
+        {
+            state = MovementState.falling;
+        }
+
+        anim.SetInteger("state", (int)state);
+    }
+
     }
